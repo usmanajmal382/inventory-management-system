@@ -20,6 +20,7 @@ namespace MyApp.Api.Controllers
         }
 
         [HttpGet]
+
         public async Task<IActionResult> GetAll()
         {
             var categories = await _categoryRepo.GetAllAsync();
@@ -34,7 +35,7 @@ namespace MyApp.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CategoryDto dto)
+        public async Task<IActionResult> Create(CreateCategoryDto dto)
         {
             var category = _mapper.Map<Category>(dto);
             await _categoryRepo.AddAsync(category);

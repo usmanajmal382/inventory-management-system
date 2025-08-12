@@ -35,17 +35,18 @@ namespace MyApp.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Create(ProductDto dto)
+        public async Task<IActionResult> Create(CreateProductDto dto)
         {
             var product = _mapper.Map<Product>(dto);
             await _productRepo.AddAsync(product);
-            return CreatedAtAction(nameof(GetById), new { id = product.Id }, _mapper.Map<ProductDto>(product));
+
+            var createdProduct = await _productRepo.GetByIdWithCategoryAsync(product.Id);
+
+            var result = _mapper.Map<ProductDto>(createdProduct);
+            return CreatedAtAction(nameof(GetById), new { id = createdProduct.Id }, result);
         }
 
         [HttpPut("{id}")]
-        [Authorize]
-
         public async Task<IActionResult> Update(int id, ProductDto dto)
         {
             if (id != dto.Id) return BadRequest("ID mismatch");
@@ -55,9 +56,7 @@ namespace MyApp.Api.Controllers
 
             _mapper.Map(dto, existing);
             _productRepo.Update(existing);
-            // If your repository doesn’t call SaveChanges inside Update(), add:
-            // await _context.SaveChangesAsync();
-            return NoContent();   // 204
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
@@ -67,9 +66,7 @@ namespace MyApp.Api.Controllers
             if (product == null) return NotFound();
 
             _productRepo.Delete(product);
-            // If your repository doesn’t call SaveChanges inside Delete(), add:
-            // await _context.SaveChangesAsync();
-            return NoContent();   // 204
+            return NoContent();
         }
     }
 }
