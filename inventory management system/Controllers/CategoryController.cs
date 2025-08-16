@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using inventory.application.DTOs;
 using inventory.application.Interfaces;
+using inventory.application.Services;
 using inventory.core.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,59 +9,12 @@ namespace MyApp.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CategoriesController : ControllerBase
+    public class CategoriesController(ICategoryService svc) : ControllerBase
     {
-        private readonly ICategoryRepository _categoryRepo;
-        private readonly IMapper _mapper;
-
-        public CategoriesController(ICategoryRepository categoryRepo, IMapper mapper)
-        {
-            _categoryRepo = categoryRepo;
-            _mapper = mapper;
-        }
-
-        [HttpGet]
-
-        public async Task<IActionResult> GetAll()
-        {
-            var categories = await _categoryRepo.GetAllAsync();
-            return Ok(_mapper.Map<IEnumerable<CategoryDto>>(categories));
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var category = await _categoryRepo.GetByIdAsync(id);
-            return category == null ? NotFound() : Ok(_mapper.Map<CategoryDto>(category));
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Create(CreateCategoryDto dto)
-        {
-            var category = _mapper.Map<Category>(dto);
-            await _categoryRepo.AddAsync(category);
-            return CreatedAtAction(nameof(GetById), new { id = category.Id }, _mapper.Map<CategoryDto>(category));
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, CategoryDto dto)
-        {
-            var existing = await _categoryRepo.GetByIdAsync(id);
-            if (existing == null) return NotFound();
-
-            _mapper.Map(dto, existing);
-            _categoryRepo.Update(existing);
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var category = await _categoryRepo.GetByIdAsync(id);
-            if (category == null) return NotFound();
-
-            _categoryRepo.Delete(category);
-            return NoContent();
-        }
+        [HttpGet] public async Task<ActionResult<IEnumerable<CategoryDto>>> Get() => Ok(await svc.GetAllCategoriesAsync());
+        [HttpGet("{id:int}")] public async Task<ActionResult<CategoryDto>> Get(int id) => await svc.GetCategoryByIdAsync(id) is { } c ? Ok(c) : NotFound();
+        [HttpPost] public async Task<ActionResult<CategoryDto>> Post(CreateCategoryDto dto) => CreatedAtAction(nameof(Get), new { id = (await svc.CreateCategoryAsync(dto)).Id }, await svc.CreateCategoryAsync(dto));
+        [HttpPut("{id:int}")] public async Task<ActionResult<CategoryDto>> Put(int id, CreateCategoryDto dto) => Ok(await svc.UpdateCategoryAsync(id, dto));
+        [HttpDelete("{id:int}")] public async Task<IActionResult> Delete(int id) { await svc.DeleteCategoryAsync(id); return NoContent(); }
     }
 }

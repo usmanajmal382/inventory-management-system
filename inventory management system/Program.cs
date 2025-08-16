@@ -1,3 +1,4 @@
+using inventory.infrastructure;
 using MyApp.Api;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +40,7 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddAppDI(builder.Configuration);
 
+ 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

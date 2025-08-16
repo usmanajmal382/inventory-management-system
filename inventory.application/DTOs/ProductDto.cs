@@ -6,14 +6,19 @@ using System.Threading.Tasks;
 
 namespace inventory.application.DTOs
 {
-    public class ProductDto
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public decimal Price { get; set; }
-        public int Stock { get; set; }
-        public int CategoryId { get; set; }
-        public string CategoryName { get; set; }
-    }
+
+    public record ProductDto(
+        int Id,
+        string Name,
+        string? Description,
+        string SKU,
+        decimal Price,
+        int Quantity,
+        int MinStockLevel,
+        int CategoryId,
+        string? CategoryName,
+        DateTime CreatedAt,
+        DateTime UpdatedAt,
+        bool IsLowStock);
 
 }

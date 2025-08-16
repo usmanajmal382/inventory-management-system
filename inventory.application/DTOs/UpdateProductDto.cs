@@ -7,9 +7,15 @@ using System.Threading.Tasks;
 
 namespace inventory.application.DTOs
 {
-    public class CreateCategoryDto
+
+    public class UpdateProductDto
     {
         [Required, StringLength(100)] public string Name { get; set; } = default!;
         [StringLength(500)] public string? Description { get; set; }
+        public decimal Price { get; set; }
+        public int MinStockLevel { get; set; }
+        [Required] public int CategoryId { get; set; }
     }
+
+
 }
