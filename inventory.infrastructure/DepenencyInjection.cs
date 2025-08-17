@@ -1,13 +1,14 @@
 ﻿using AutoMapper;
 using inventory.application.Interfaces;
+using inventory.application.Services;
+using inventory.core.Options;
+using inventory.infrastructure.Repositories;
+// Add this using directive for SQL Server support
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MyApp.Infrastructure.Data;
 using MyApp.Infrastructure.Services;
-// Add this using directive for SQL Server support
-using Microsoft.EntityFrameworkCore;
-using inventory.core.Options;
-using inventory.infrastructure.Repositories;
 
 namespace inventory.infrastructure
 {
@@ -25,6 +26,14 @@ namespace inventory.infrastructure
             services.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
             services.AddScoped<IStockAlertRepository, StockAlertRepository>();
             services.AddScoped<IStockTransactionRepository, StockTransactionRepository>();
+            services.AddScoped<ICategoryService, CategoryService>();
+
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ISupplierService, SupplierService>();
+            services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
+            services.AddScoped<IStockAlertService, StockAlertService>();
+            services.AddScoped<IStockService, StockService>();
+
             return services;
         }
     }

@@ -13,12 +13,7 @@ namespace MyApp.Application
                 cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
                 cfg.NotificationPublisher = new TaskWhenAllPublisher();
             });
-            services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<IProductService, ProductService>();
-            services.AddScoped<ISupplierService, SupplierService>();
-            services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
-            services.AddScoped<IStockAlertService, StockAlertService>();
-            services.AddScoped<IStockService, StockService>();
+       
 
 
             return services;

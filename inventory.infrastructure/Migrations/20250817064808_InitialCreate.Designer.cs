@@ -12,8 +12,8 @@ using MyApp.Infrastructure.Data;
 namespace inventory.infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250816081643_newdata")]
-    partial class newdata
+    [Migration("20250817064808_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
