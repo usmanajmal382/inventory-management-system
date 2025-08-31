@@ -26,6 +26,10 @@ namespace inventory.infrastructure
             services.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
             services.AddScoped<IStockAlertRepository, StockAlertRepository>();
             services.AddScoped<IStockTransactionRepository, StockTransactionRepository>();
+            // Repositories
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IUnitRepository, UnitRepository>();
+            services.AddScoped<ISaleRepository, SaleRepository>();
             services.AddScoped<ICategoryService, CategoryService>();
 
             services.AddScoped<IProductService, ProductService>();
@@ -33,6 +37,10 @@ namespace inventory.infrastructure
             services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
             services.AddScoped<IStockAlertService, StockAlertService>();
             services.AddScoped<IStockService, StockService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IUnitService, UnitService>();
+       
+            services.AddScoped<ISalesService, SalesService>();
 
             return services;
         }

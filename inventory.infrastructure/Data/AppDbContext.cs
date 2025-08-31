@@ -16,6 +16,11 @@ namespace MyApp.Infrastructure.Data
         public DbSet<StockAlert> StockAlerts => Set<StockAlert>();
         public DbSet<StockTransaction> StockTransactions => Set<StockTransaction>();
         public DbSet<ProductSupplier> ProductSuppliers => Set<ProductSupplier>();
+        public DbSet<Order> Orders => Set<Order>();
+        public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+        public DbSet<Unit> Units => Set<Unit>();
+        public DbSet<Sale> Sales => Set<Sale>();
+        public DbSet<SaleItem> SaleItems => Set<SaleItem>();
 
         protected override void OnModelCreating(ModelBuilder b)
         {
@@ -28,7 +33,10 @@ namespace MyApp.Infrastructure.Data
                 e.HasIndex(p => p.SKU).IsUnique();
                 e.Property(p => p.Price).HasPrecision(18, 2);
                 e.HasOne(p => p.Category).WithMany(c => c.Products).HasForeignKey(p => p.CategoryId);
+                // ... existing configuration ...
+                e.HasOne(p => p.Unit).WithMany(u => u.Products).HasForeignKey(p => p.UnitId).IsRequired(false);
             });
+
 
             // Category
             b.Entity<Category>(e =>
@@ -89,6 +97,58 @@ namespace MyApp.Infrastructure.Data
                 e.HasOne(t => t.Product).WithMany(p => p.StockTransactions).HasForeignKey(t => t.ProductId);
                 e.HasOne(t => t.PurchaseOrder).WithMany().HasForeignKey(t => t.PurchaseOrderId).IsRequired(false);
             });
+            // Order
+            b.Entity<Order>(e =>
+            {
+                e.HasKey(o => o.Id);
+                e.Property(o => o.OrderNumber).IsRequired().HasMaxLength(50);
+                e.HasIndex(o => o.OrderNumber).IsUnique();
+                e.Property(o => o.TotalAmount).HasPrecision(18, 2);
+                e.Property(o => o.TaxAmount).HasPrecision(18, 2);
+                e.Property(o => o.DiscountAmount).HasPrecision(18, 2);
+            });
+
+            // OrderItem
+            b.Entity<OrderItem>(e =>
+            {
+                e.HasKey(i => i.Id);
+                e.Property(i => i.UnitPrice).HasPrecision(18, 2);
+                e.Property(i => i.Discount).HasPrecision(18, 2);
+                e.Property(i => i.Unit).HasMaxLength(50);
+                e.HasOne(i => i.Order).WithMany(o => o.Items).HasForeignKey(i => i.OrderId);
+                e.HasOne(i => i.Product).WithMany(p => p.OrderItems).HasForeignKey(i => i.ProductId);
+            });
+
+            // Unit
+            b.Entity<Unit>(e =>
+            {
+                e.HasKey(u => u.Id);
+                e.Property(u => u.Name).IsRequired().HasMaxLength(20);
+                e.Property(u => u.Abbreviation).HasMaxLength(10);
+                e.HasIndex(u => u.Name).IsUnique();
+            });
+            // Sale
+            b.Entity<Sale>(e =>
+            {
+                e.HasKey(s => s.Id);
+                e.Property(s => s.SaleNumber).IsRequired().HasMaxLength(50);
+                e.HasIndex(s => s.SaleNumber).IsUnique();
+                e.Property(s => s.TotalAmount).HasPrecision(18, 2);
+                e.Property(s => s.TaxAmount).HasPrecision(18, 2);
+                e.Property(s => s.DiscountAmount).HasPrecision(18, 2);
+                e.HasOne(s => s.Order).WithMany().HasForeignKey(s => s.OrderId).IsRequired(false);
+            });
+
+            // SaleItem
+            b.Entity<SaleItem>(e =>
+            {
+                e.HasKey(si => si.Id);
+                e.Property(si => si.UnitPrice).HasPrecision(18, 2);
+                e.Property(si => si.Unit).HasMaxLength(50);
+                e.HasOne(si => si.Sale).WithMany(s => s.Items).HasForeignKey(si => si.SaleId);
+                e.HasOne(si => si.Product).WithMany(p => p.SaleItems).HasForeignKey(si => si.ProductId);
+            });
+
         }
     }
 }

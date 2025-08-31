@@ -29,5 +29,10 @@ namespace inventory.core.Entities
         public ICollection<PurchaseOrderItem> PurchaseOrderItems { get; set; } = new List<PurchaseOrderItem>();
         public ICollection<ProductSupplier> ProductSuppliers { get; set; } = new List<ProductSupplier>();
         public ICollection<StockAlert> StockAlerts { get; set; } = new List<StockAlert>();
+        public int? UnitId { get; set; }
+        public Unit? Unit { get; set; }
+
+        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public ICollection<SaleItem> SaleItems { get; set; } = new List<SaleItem>();
     }
 }
