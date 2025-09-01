@@ -7,7 +7,6 @@ namespace MyApp.Infrastructure.Data
     public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
         public DbSet<User> Users => Set<User>();
-
         public DbSet<Product> Products => Set<Product>();
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<Supplier> Suppliers => Set<Supplier>();
@@ -24,6 +23,19 @@ namespace MyApp.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder b)
         {
+            // User
+            b.Entity<User>(e =>
+            {
+                e.HasKey(u => u.Id);
+                e.Property(u => u.FullName).IsRequired().HasMaxLength(200);
+                e.Property(u => u.Email).IsRequired().HasMaxLength(100);
+                e.HasIndex(u => u.Email).IsUnique();
+                e.Property(u => u.PasswordHash).IsRequired();
+                e.Property(u => u.Role).HasConversion<int>();
+                e.Property(u => u.IsActive).HasDefaultValue(true);
+                e.Property(u => u.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            });
+
             // Product
             b.Entity<Product>(e =>
             {
@@ -33,10 +45,8 @@ namespace MyApp.Infrastructure.Data
                 e.HasIndex(p => p.SKU).IsUnique();
                 e.Property(p => p.Price).HasPrecision(18, 2);
                 e.HasOne(p => p.Category).WithMany(c => c.Products).HasForeignKey(p => p.CategoryId);
-                // ... existing configuration ...
                 e.HasOne(p => p.Unit).WithMany(u => u.Products).HasForeignKey(p => p.UnitId).IsRequired(false);
             });
-
 
             // Category
             b.Entity<Category>(e =>
@@ -97,6 +107,7 @@ namespace MyApp.Infrastructure.Data
                 e.HasOne(t => t.Product).WithMany(p => p.StockTransactions).HasForeignKey(t => t.ProductId);
                 e.HasOne(t => t.PurchaseOrder).WithMany().HasForeignKey(t => t.PurchaseOrderId).IsRequired(false);
             });
+
             // Order
             b.Entity<Order>(e =>
             {
@@ -127,6 +138,7 @@ namespace MyApp.Infrastructure.Data
                 e.Property(u => u.Abbreviation).HasMaxLength(10);
                 e.HasIndex(u => u.Name).IsUnique();
             });
+
             // Sale
             b.Entity<Sale>(e =>
             {
@@ -149,6 +161,17 @@ namespace MyApp.Infrastructure.Data
                 e.HasOne(si => si.Product).WithMany(p => p.SaleItems).HasForeignKey(si => si.ProductId);
             });
 
+            // Default Admin User (Seed Data)
+            b.Entity<User>().HasData(new User
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                FullName = "System Administrator",
+                Email = "admin@inventory.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+                Role = UserRole.Admin,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            });
         }
     }
 }

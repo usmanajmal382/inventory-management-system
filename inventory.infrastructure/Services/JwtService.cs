@@ -26,14 +26,25 @@ namespace MyApp.Infrastructure.Services
 
         public string GenerateToken(User user)
         {
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.FullName),
                 new Claim(ClaimTypes.Email, user.Email),
+                new Claim("role", user.Role.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
             };
+
+            // Add permissions as claims
+            if (UserPermissions.RolePermissions.ContainsKey(user.Role))
+            {
+                var permissions = UserPermissions.RolePermissions[user.Role];
+                foreach (var permission in permissions)
+                {
+                    claims.Add(new Claim("permission", permission));
+                }
+            }
 
             var credentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256);
             var expiration = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpirationMinutes);
@@ -80,5 +91,4 @@ namespace MyApp.Infrastructure.Services
             return DateTime.UtcNow.AddMinutes(_jwtOptions.ExpirationMinutes);
         }
     }
-
 }

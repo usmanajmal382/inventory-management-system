@@ -27,7 +27,10 @@ namespace MyApp.Infrastructure.Services
                 Id = Guid.NewGuid(),
                 FullName = request.FullName,
                 Email = request.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                Role = request.Role,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
             };
 
             _context.Users.Add(user);
@@ -36,20 +39,26 @@ namespace MyApp.Infrastructure.Services
             var token = _jwtService.GenerateToken(user);
             var expiration = _jwtService.GetTokenExpiration();
 
+            var permissions = UserPermissions.RolePermissions.ContainsKey(user.Role)
+                ? UserPermissions.RolePermissions[user.Role]
+                : Array.Empty<string>();
+
             return new AuthResponse
             {
                 Token = token,
                 Expiration = expiration,
                 UserId = user.Id,
                 FullName = user.FullName,
-                Email = user.Email
+                Email = user.Email,
+                Role = user.Role,
+                Permissions = permissions
             };
         }
 
         public async Task<AuthResponse?> LoginAsync(LoginRequest request)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-            if (user == null) return null;
+            if (user == null || !user.IsActive) return null;
 
             bool isValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
             if (!isValid) return null;
@@ -57,15 +66,20 @@ namespace MyApp.Infrastructure.Services
             var token = _jwtService.GenerateToken(user);
             var expiration = _jwtService.GetTokenExpiration();
 
+            var permissions = UserPermissions.RolePermissions.ContainsKey(user.Role)
+                ? UserPermissions.RolePermissions[user.Role]
+                : Array.Empty<string>();
+
             return new AuthResponse
             {
                 Token = token,
                 Expiration = expiration,
                 UserId = user.Id,
                 FullName = user.FullName,
-                Email = user.Email
+                Email = user.Email,
+                Role = user.Role,
+                Permissions = permissions
             };
         }
     }
-
 }
